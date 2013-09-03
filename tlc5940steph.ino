@@ -71,8 +71,8 @@ void setup() {
 void serialEvent() {  
   while (Serial.available()>=2) {
     // read the bytes
-    byte b1 = Serial.read();
-    byte b2 = Serial.read();
+    byte b1 = (byte) Serial.read();
+    byte b2 = (byte) Serial.read();
     
     // if we received a special byte pair, clear things out / reset the system
     if((b1==B11111111) && (b2==B11111111)) {
@@ -81,14 +81,16 @@ void serialEvent() {
       channel_offset = 0;
       
       // clear out the buffer, too
+      /*
       while(Serial.available()) {
         Serial.read();
       }
+      */
     }
     
     // otherwise try to set the value of the current channel
     else {
-      int new_value = (256 * ((byte) Serial.read())) + ((byte) Serial.read());
+      int new_value = (256 * b1) + b2;
       Tlc.set(channel_offset, new_value);
       channel_offset = (channel_offset + 1) % NUM_CHANNELS;
     }
