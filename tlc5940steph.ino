@@ -69,30 +69,24 @@ void setup() {
  response.  Multiple bytes of data may be available.
  */
 void serialEvent() {  
-  while (Serial.available()>=2) {
-    // read the bytes
-    byte b1 = (byte) Serial.read();
-    byte b2 = (byte) Serial.read();
-    
-    // if we received a special byte pair, clear things out / reset the system
-    if((b1==B11111111) && (b2==B11111111)) {
-      Tlc.clear();
-      Tlc.update();
-      channel_offset = 0;
-      
-      // clear out the buffer, too
-      /*
-      while(Serial.available()) {
-        Serial.read();
+  while (Serial.available()>=3) {
+    byte c = (char) Serial.read();
+    if ((c=='R')||(c=='G')||(c=='B')) {
+      int target_channel;
+      if(c=='R') {
+        target_channel = 0;
       }
-      */
-    }
-    
-    // otherwise try to set the value of the current channel
-    else {
+      else if(c=='G'){
+        target_channel = 1;
+      }
+      else {
+        target_channel = 2;
+      }
+      // read the bytes
+      byte b1 = (byte) Serial.read();
+      byte b2 = (byte) Serial.read();
       int new_value = (256 * b1) + b2;
-      Tlc.set(channel_offset, new_value);
-      channel_offset = (channel_offset + 1) % NUM_CHANNELS;
+      Tlc.set(target_channel, new_value);      
     }
   }
 }
