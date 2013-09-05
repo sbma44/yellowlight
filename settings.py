@@ -3,4 +3,9 @@ NEXTBUS_URLS = {
 	'43': 'http://www.nextbus.com/predictor/fancyBookmarkablePredictionLayer.shtml?a=wmata&r=43&d=43_43_0&s=7611'
 }
 
+SERIAL_DEVICE = '/dev/ttyAMA0'
+SERIAL_SPEED = 115200
+
 TIMEOUT = 300 # 5 minutes
+
+NEXTBUS_ROUTES = [42, 43]
