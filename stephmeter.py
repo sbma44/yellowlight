@@ -9,6 +9,7 @@ from settings import *
 def main():
 	l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
 	p = pwm_calibrate.PWMCalibrator()
+	p.load()
 	p_range = p.get_range()
 	nb = nextbus.NextbusPredictor(NEXTBUS_ROUTES)
 
@@ -20,7 +21,7 @@ def main():
 			l.set(0, 255, 0)
 		elif int(route)==42:
 			l.set(0, 0, 255)
-		P.setPWM(minutes)
+		p.setPWM(minutes)
 
 		time.sleep(0.1)
 
