@@ -18,13 +18,32 @@ class NextbusPredictor(object):
 			self.last_refresh[r] = None
 			self.refresh(r)
 	
-	def _extract_prediction(self, html):
+	def _clean_prediction_html(self, html):
+		return re.sub(r'&nbsp;','', re.sub(r'<[^>]*>','',(str(html)), flags=re.MULTILINE|re.DOTALL)).strip()
+
+	def _extract_predictions(self, html):
 		if '<p class="predictHead"><span id=\'i18n_en\'>No prediction</span><br/>' in html:
 			return None
 		else:
-			soup = BeautifulSoup(html)			
-			minutes = re.sub(r'&nbsp;','', re.sub(r'<[^>]*>','',(str(select(soup, '.predictionNumberForFirstPred')[0])), flags=re.MULTILINE|re.DOTALL))
-			return int(minutes.strip())
+			predictions = []
+			soup = BeautifulSoup(html)	
+
+			# get the primary/imminent prediction		
+			minutes = self._clean_prediction_html(select(soup, '.predictionNumberForFirstPred')[0])
+			if ('departing' in minutes.lower()) or ('arriving' in minutes.lower()):
+				predictions.append(0)
+			else:
+				predictions.append(int(minutes))
+
+			# get the other predictions
+			for m in select(soup, '.predictionNumberForOtherPreds'):
+				m = self._clean_prediction_html(m)
+				try:
+					predictions.append(int(m))
+				except:
+					pass
+
+			return predictions
 
 	def refresh(self, route):
 		"""Force a refresh of a specific route"""
@@ -34,9 +53,12 @@ class NextbusPredictor(object):
 		if not url:
 			return
 
-		html = self.scraper.urlopen(url)
+		try:
+			html = self.scraper.urlopen(url)
+		except:
+			return # fail silently. bad, I know.
 
-		self.predictions[route] = self._extract_prediction(html)
+		self.predictions[route] = self._extract_predictions(html)
 		self.last_refresh[route] = time.time()
 
 	def _get_query_frequency(self, last_prediction_in_minutes):
@@ -48,7 +70,6 @@ class NextbusPredictor(object):
 			return 2 * 60
 		else:
 			return 60
-
 
 	def refresh_if_necessary(self):
 		"""Only refresh prediction times intermittently -- don't hammer"""
@@ -62,26 +83,25 @@ class NextbusPredictor(object):
 				if (time.time() - self.last_refresh[r]) > self._get_query_frequency(self.predictions[r]):
 					self.refresh(r)
 	
-	def _adjust_prediction_for_elapsed_time(self, r):
-		return int(self.predictions[r] - round((time.time() - self.last_refresh[r]) / 60.0))
+	def _adjust_prediction_for_elapsed_time(self, prediction, r):
+		return round(prediction - round((time.time() - self.last_refresh[r]) / 60.0))
 
 	def get_closest_arrival(self):
-		"""Return the (route, arrival) pair that's happening soonest"""
-		soonest_time = 9999
-		soonest_found = False
-		soonest_route = None
-		for r in self.routes:
-			p = self.predictions.get(r, None)
-			if p is not None:
-				if p<soonest_time:
-					soonest_time = p
-					soonest_route = r
-					soonest_found = True
+		return get_nth_closest_arrival(0)
 
-		if soonest_found:
-			return (soonest_route, self._adjust_prediction_for_elapsed_time(soonest_route))
-		else:
-			return False
+	def get_nth_closest_arrival(self, n=0):
+		"""Return the (route, arrival) pair that's happening soonest"""
+		arrivals = []
+		for r in self.routes:			
+			if self.predictions.get(r) is not None:			
+				for p in self.predictions.get(r, []):				
+					arrivals.append( (p, r) )
+
+		if n>=len(arrivals):
+			return None
+
+		matching_arrival = sorted(arrivals, key=lambda x: x[0])[n]
+		return (matching_arrival[1], self._adjust_prediction_for_elapsed_time(matching_arrival[0], matching_arrival[1]))
 
 
 if __name__ == '__main__':
