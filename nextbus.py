@@ -26,7 +26,6 @@ class NextbusPredictor(object):
 			minutes = re.sub(r'&nbsp;','', re.sub(r'<[^>]*>','',(str(select(soup, '.predictionNumberForFirstPred')[0])), flags=re.MULTILINE|re.DOTALL))
 			return int(minutes.strip())
 
-
 	def refresh(self, route):
 		"""Force a refresh of a specific route"""
 		route = str(route)
@@ -40,6 +39,17 @@ class NextbusPredictor(object):
 		self.predictions[route] = self._extract_prediction(html)
 		self.last_refresh[route] = time.time()
 
+	def _get_query_frequency(self, last_prediction_in_minutes):
+		if last_prediction_in_minutes>20:
+			return (last_prediction_in_minutes / 2) * 60
+		elif last_prediction_in_minutes>10:
+			return 3 * 60
+		elif last_prediction_in_minutes>5:
+			return 2 * 60
+		else:
+			return 60
+
+
 	def refresh_if_necessary(self):
 		"""Only refresh prediction times intermittently -- don't hammer"""
 		for r in self.routes:
@@ -49,9 +59,12 @@ class NextbusPredictor(object):
 			else:
 				# if we have a prediction, refresh if we're halfway or more to
 				# the expected arrival time
-				if (time.time() - self.last_refresh[r]) > (self.predictions[r] * 30):
+				if (time.time() - self.last_refresh[r]) > self._get_query_frequency(self.predictions[r]):
 					self.refresh(r)
-		
+	
+	def _adjust_prediction_for_elapsed_time(self, r):
+		return int(self.predictions[r] - round((time.time() - self.last_refresh[r]) / 60.0))
+
 	def get_closest_arrival(self):
 		"""Return the (route, arrival) pair that's happening soonest"""
 		soonest_time = 9999
@@ -66,7 +79,7 @@ class NextbusPredictor(object):
 					soonest_found = True
 
 		if soonest_found:
-			return (soonest_route, soonest_time)
+			return (soonest_route, self._adjust_prediction_for_elapsed_time(soonest_route))
 		else:
 			return False
 
