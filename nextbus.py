@@ -80,7 +80,7 @@ class NextbusPredictor(object):
 			else:
 				# if we have a prediction, refresh if we're halfway or more to
 				# the expected arrival time
-				if (time.time() - self.last_refresh[r]) > self._get_query_frequency(self.predictions[r]):
+				if (time.time() - self.last_refresh[r]) > self._get_query_frequency(self.predictions[r][0]):
 					self.refresh(r)
 	
 	def _adjust_prediction_for_elapsed_time(self, prediction, r):
