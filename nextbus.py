@@ -87,7 +87,7 @@ class NextbusPredictor(object):
 		return round(prediction - round((time.time() - self.last_refresh[r]) / 60.0))
 
 	def get_closest_arrival(self):
-		return get_nth_closest_arrival(0)
+		return self.get_nth_closest_arrival(0)
 
 	def get_nth_closest_arrival(self, n=0):
 		"""Return the (route, arrival) pair that's happening soonest"""
