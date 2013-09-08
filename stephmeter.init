@@ -19,7 +19,7 @@
 NAME=StephMeter
 DAEMON="/home/pi/Devel/stephmeter/stephmeter.py"
 PIDFILE=/var/run/$NAME.pid
-DAEMON_ARGS="-w $PIDFILE -a $NAME"
+DAEMON_ARGS=""
 
 [ -x $binary ] || exit 0
 
