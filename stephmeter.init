@@ -27,8 +27,8 @@ RETVAL=0
 
 start() {
     echo -n "Starting StephMeter daemon: "
-    start-stop-daemon --start --quiet --pidfile "$PIDFILE" \
-                      --exec "$DAEMON" -b --oknodo -- $DAEMON_ARGS
+    start-stop-daemon --start --quiet --make-pidfile --pidfile "$PIDFILE" \
+                      --exec "$DAEMON" -b --oknodo -- $DAEMON_ARGS > /var/log/stephmeter.log 2>&1
     log_end_msg $?
 }
 
