@@ -5,13 +5,21 @@ import pwm_calibrate
 import led
 import time
 import datetime
+import sys
 from settings import *
 
 def main():
-	l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
-	p = pwm_calibrate.PWMCalibrator(smoothing=True)
-	p.load()
-	p_range = p.get_range()
+
+	DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.args)
+
+	if DEBUG:
+		print 'Entering debug mode...'
+	else:
+		l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
+		p = pwm_calibrate.PWMCalibrator(smoothing=True)
+		p.load()
+		p_range = p.get_range()
+
 	nb = nextbus.NextbusPredictor(NEXTBUS_ROUTES)
 
 	while True:
@@ -32,11 +40,16 @@ def main():
 				minutes = p_range[1]
 
 			minutes = min(max(minutes, p_range[0]), p_range[1])
-			if int(route)==43:
-				l.set(50, 100, 50)
-			elif int(route)==42:
-				l.set(50, 50, 100)
-			p.setPWM(minutes)
+
+			if DEBUG:
+				print 'route is %s, arriving in %d minutes' % (route, minutes)
+			else:
+				if int(route)==43:
+					l.set(50, 100, 50)
+				elif int(route)==42:
+					l.set(50, 50, 100)
+				p.setPWM(minutes)
+
 			time.sleep(3)
 
 
