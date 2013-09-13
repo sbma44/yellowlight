@@ -19,7 +19,7 @@
 NAME=StephMeter
 DAEMON="/home/pi/Devel/stephmeter/stephmeter.py"
 PIDFILE=/var/run/$NAME.pid
-DAEMON_ARGS="-w $PIDFILE -a $NAME"
+DAEMON_ARGS=""
 
 [ -x $binary ] || exit 0
 
@@ -27,7 +27,12 @@ RETVAL=0
 
 start() {
     echo -n "Starting StephMeter daemon: "
+<<<<<<< HEAD
     sudo start-stop-daemon --start --oknodo --background --quiet --pidfile "$PIDFILE" --make-pidfile --background --exec "$DAEMON" -- $DAEMON_ARGS
+=======
+    start-stop-daemon --start --quiet --make-pidfile --pidfile "$PIDFILE" \
+                      --exec "$DAEMON" -b --oknodo -- $DAEMON_ARGS > /var/log/stephmeter.log 2>&1
+>>>>>>> b4f9856f4e794c2567e215675f0ed0668a0c8dc7
     log_end_msg $?
 }
 

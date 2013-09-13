@@ -9,6 +9,7 @@ import sys
 from settings import *
 
 def main():
+<<<<<<< HEAD
 
 	DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.args)
 
@@ -20,6 +21,12 @@ def main():
 		p.load()
 		p_range = p.get_range()
 
+=======
+	l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
+	p = pwm_calibrate.PWMCalibrator(calibration_file='/home/pi/Devel/stephmeter/calibration.json', smoothing=True)
+	p.load()
+	p_range = p.get_range()
+>>>>>>> b4f9856f4e794c2567e215675f0ed0668a0c8dc7
 	nb = nextbus.NextbusPredictor(NEXTBUS_ROUTES)
 
 	while True:
@@ -40,6 +47,7 @@ def main():
 				minutes = p_range[1]
 
 			minutes = min(max(minutes, p_range[0]), p_range[1])
+<<<<<<< HEAD
 
 			if DEBUG:
 				print 'route is %s, arriving in %d minutes' % (route, minutes)
@@ -50,6 +58,13 @@ def main():
 					l.set(50, 50, 100)
 				p.setPWM(minutes)
 
+=======
+			if int(route)==43:
+				l.set(20, 100, 20)
+			elif int(route)==42:
+				l.set(20, 20, 100)
+			p.setPWM(minutes)
+>>>>>>> b4f9856f4e794c2567e215675f0ed0668a0c8dc7
 			time.sleep(3)
 
 
