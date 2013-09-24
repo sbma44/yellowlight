@@ -6,6 +6,8 @@ NEXTBUS_URLS = {
 SERIAL_DEVICE = '/dev/ttyAMA0'
 SERIAL_SPEED = 115200
 
+CALIBRATION_FILE = '/home/pi/Devel/stephmeter/calibration.json'
+
 TIMEOUT = 300 # 5 minutes
 
 NEXTBUS_ROUTES = [42, 43]
