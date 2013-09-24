@@ -67,5 +67,5 @@ if __name__ == '__main__':
 		f.write(str(e))
 		f.close()
 
-		os.system('echo "%s" | mail -s "STEPHMETER CRASH LOG" thomas.j.lee@gmail.com')
+		os.system('echo "%s" | mail -s "STEPHMETER CRASH LOG" thomas.j.lee@gmail.com' % str(e))
 
