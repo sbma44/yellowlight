@@ -6,6 +6,7 @@ import led
 import time
 import datetime
 import sys
+import os
 from settings import *
 
 def main():
@@ -15,7 +16,7 @@ def main():
 		print 'Entering debug mode...'
 	else:
 		l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
-		p = pwm_calibrate.PWMCalibrator(smoothing=True)
+		p = pwm_calibrate.PWMCalibrator(calibration_file=CALIBRATION_FILE, smoothing=True)
 		p.load()
 		p_range = p.get_range()
 
@@ -59,5 +60,12 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	try:
+		main()
+	except Exception, e:
+		f = open('/var/log/stephmeter-crash.log', 'a')
+		f.write(str(e))
+		f.close()
+
+		os.system('echo "%s" | mail -s "STEPHMETER CRASH LOG" thomas.j.lee@gmail.com')
 
