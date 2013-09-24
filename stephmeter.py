@@ -20,10 +20,11 @@ def main():
 		# determine the number of predictions to display based on time of day and interval between
 		num_predictions_to_display = 1
 		predictions = (nb.get_nth_closest_arrival(0), nb.get_nth_closest_arrival(1))
-		if (predictions[0][1] is not None) and (predictions[1][1] is not None): # do we have two valid predictions?
-			if predictions[0][1]<30: # is the next bus less than 30m away?
-				if predictions[1][1]<p_range[1]: # does the second one fit on the meter?
-					num_predictions_to_display = 2
+		if not (None in predictions):
+			if (predictions[0][1] is not None) and (predictions[1][1] is not None): # do we have two valid predictions?
+				if predictions[0][1]<30: # is the next bus less than 30m away?
+					if predictions[1][1]<p_range[1]: # does the second one fit on the meter?
+						num_predictions_to_display = 2
 
 
 		for (route, minutes) in predictions[:num_predictions_to_display]:
