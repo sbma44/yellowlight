@@ -9,7 +9,7 @@ import sys
 from settings import *
 
 def main():
-	DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.args)
+	DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.argv)
 
 	if DEBUG:
 		print 'Entering debug mode...'
@@ -34,8 +34,13 @@ def main():
 						num_predictions_to_display = 2
 
 
-		for (route, minutes) in predictions[:num_predictions_to_display]:
-			
+		for pred in predictions[:num_predictions_to_display]:
+			if pred is None:
+				route = NEXTBUS_ROUTES[0]
+				minutes = None	
+			else:
+				(route, minutes) = pred
+
 			if minutes is None:
 				minutes = p_range[1]
 

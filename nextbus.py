@@ -22,14 +22,17 @@ class NextbusPredictor(object):
 		return re.sub(r'&nbsp;','', re.sub(r'<[^>]*>','',(str(html)), flags=re.MULTILINE|re.DOTALL)).strip()
 
 	def _extract_predictions(self, html):
-		if '<p class="predictHead"><span id=\'i18n_en\'>No prediction</span><br/>' in html:
+		if '<p class="predictHead"><nobr><span id=\'i18n_en\'>No current prediction' in html:
 			return None
 		else:
 			predictions = []
 			soup = BeautifulSoup(html)	
 
 			# get the primary/imminent prediction		
-			minutes = self._clean_prediction_html(select(soup, '.predictionNumberForFirstPred')[0])
+			try:
+				minutes = self._clean_prediction_html(select(soup, '.predictionNumberForFirstPred')[0])
+			except:
+				return None
 			if ('departing' in minutes.lower()) or ('arriving' in minutes.lower()):
 				predictions.append(0)
 			else:
