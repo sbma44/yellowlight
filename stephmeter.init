@@ -27,18 +27,15 @@ RETVAL=0
 
 start() {
     echo -n "Starting StephMeter daemon: "
-<<<<<<< HEAD
-    sudo start-stop-daemon --start --oknodo --background --quiet --pidfile "$PIDFILE" --make-pidfile --background --exec "$DAEMON" -- $DAEMON_ARGS
-=======
-    start-stop-daemon --start --quiet --make-pidfile --pidfile "$PIDFILE" \
-                      --exec "$DAEMON" -b --oknodo -- $DAEMON_ARGS > /var/log/stephmeter.log 2>&1
->>>>>>> b4f9856f4e794c2567e215675f0ed0668a0c8dc7
+    start-stop-daemon --start --make-pidfile --pidfile "$PIDFILE" \
+                      --exec "$DAEMON" -b --oknodo -- $DAEMON_ARGS >> /var/log/stephmeter.log 2>&1
     log_end_msg $?
 }
 
 stop() {
     echo -n "Shutting down StephMeter daemon: "
-    start-stop-daemon --stop --quiet --pidfile "$PIDFILE" --retry 1 --oknodo
+    start-stop-daemon --stop --quiet --pidfile "$PIDFILE" \
+                --retry 1 --oknodo
     log_end_msg $?
 }
 
