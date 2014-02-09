@@ -1,65 +1,63 @@
 #!/home/pi/.virtualenvs/stephmeter/bin/python
 
 import nextbus
-import pwm_calibrate
 import led
 import time
 import datetime
 import sys
 import os
 from settings import *
+import wiringpi
+
+DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.argv)
+
+def on():
+	if DEBUG:
+		print 'ON'
+        wiringpi.digitalWrite(6, wiringpi.HIGH)
+
+def off():
+	if DEBUG:
+		print 'OFF'
+        wiringpi.digitalWrite(6, wiringpi.LOW)
+
+def setup():
+	wiringpi.wiringPiSetup()
+        wiringpi.pinMode(6, wiringpi.OUTPUT)	
 
 def main():
-	DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.argv)
-
 	if DEBUG:
 		print 'Entering debug mode...'
-	else:
-		l = led.LED(SERIAL_DEVICE, SERIAL_SPEED)
-		p = pwm_calibrate.PWMCalibrator(calibration_file=CALIBRATION_FILE, smoothing=True)
-		p.load()
-		p_range = p.get_range()
 
 	nb = nextbus.NextbusPredictor(NEXTBUS_ROUTES)
 
 	while True:
 		nb.refresh_if_necessary()
 
-		# determine the number of predictions to display based on time of day and interval between
-		num_predictions_to_display = 1
 		predictions = (nb.get_nth_closest_arrival(0), nb.get_nth_closest_arrival(1))
-		if not (None in predictions):
-			if (predictions[0][1] is not None) and (predictions[1][1] is not None): # do we have two valid predictions?
-				if predictions[0][1]<30: # is the next bus less than 30m away?
-					if predictions[1][1]<p_range[1]: # does the second one fit on the meter?
-						num_predictions_to_display = 2
 
+		if (datetime.datetime.now().hour>7) and (datetime.datetime.now().hour<10):
+			light_should_be_on = False
+			for pred in predictions:
+				if pred is not None:
+					(route, minutes) = pred
+					if route=='G2':
+						if (minutes>=5) and (minutes<=8):
+							light_should_be_on = True
 
-		for pred in predictions[:num_predictions_to_display]:
-			if pred is None:
-				route = NEXTBUS_ROUTES[0]
-				minutes = None	
+			if light_should_be_on:
+				on()
 			else:
-				(route, minutes) = pred
-
-			if minutes is None:
-				minutes = p_range[1]
-
-			minutes = min(max(minutes, p_range[0]), p_range[1])
-
-			if DEBUG:
-				print 'route is %s, arriving in %d minutes' % (route, minutes)
-			else:
-				if int(route)==43:
-					l.set(50, 100, 50)
-				elif int(route)==42:
-					l.set(50, 50, 100)
-				p.setPWM(minutes)
+				off() 
 
 			time.sleep(3)
 
 
 if __name__ == '__main__':
+	setup()
+	off()
+	main()
+
 	try:
 		main()
 	except Exception, e:

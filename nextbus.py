@@ -67,12 +67,12 @@ class NextbusPredictor(object):
 	def _get_query_frequency(self, last_prediction_in_minutes):
 		if last_prediction_in_minutes>20:
 			return (last_prediction_in_minutes / 2) * 60
-		elif last_prediction_in_minutes>10:
-			return 3 * 60
-		elif last_prediction_in_minutes>5:
+		elif last_prediction_in_minutes>12:
 			return 2 * 60
-		else:
+		elif last_prediction_in_minutes>8:
 			return 60
+		else:
+			return 30
 
 	def refresh_if_necessary(self):
 		"""Only refresh prediction times intermittently -- don't hammer"""
