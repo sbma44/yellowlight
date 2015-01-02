@@ -55,7 +55,7 @@ def main():
         prediction = nb.get_nth_closest_arrival(n=0, route=active_routes)
 
         if DEBUG:
-            print 'predictions: %s' % str(predictions)
+            print 'predictions: %s' % str(prediction)
 
         light_should_be_on = False
         (route, minutes) = prediction
