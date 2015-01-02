@@ -13,7 +13,7 @@ def not_asleep():
     if now.weekday() in (0, 6):
         sleep_hours = (2, 3, 4, 5, 6, 7, 8)
 
-    return not (n.hour in sleep_hours)
+    return not (now.hour in sleep_hours)
 
 
 NEXTBUS_HOURS = {
