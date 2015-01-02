@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import nextbus
-import led
 import time
 import datetime
 import sys
