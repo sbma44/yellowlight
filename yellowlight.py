@@ -46,7 +46,7 @@ def main():
                 active_routes.append(route)
 
         if DEBUG and len(active_routes) > 0:
-            print 'found actively monitored route: %s' % appropriate_route
+            print 'found actively monitored route(s): %s' % ', '.join(active_routes)
 
         if len(active_routes) == 0:
             time.sleep(60)
