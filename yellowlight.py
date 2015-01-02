@@ -31,7 +31,7 @@ def main():
     if DEBUG:
         print 'Entering debug mode...'
 
-    nb = nextbus.NextbusPredictor(NEXTBUS_URLS)
+    nb = nextbus.Nextbus(NEXTBUS_URLS)
 
     while True:
         nb.refresh_if_necessary()
