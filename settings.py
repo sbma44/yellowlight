@@ -1,13 +1,25 @@
+import datetime
+
 NEXTBUS_URLS = {
-	'42': 'http://www.nextbus.com/predictor/fancyBookmarkablePredictionLayer.shtml?a=wmata&stopId=1002070&r=42&d=42_42_0&s=7611',
-	'43': 'http://www.nextbus.com/predictor/fancyBookmarkablePredictionLayer.shtml?a=wmata&r=43&d=43_43_0&s=7611'
+	'90': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/90/stops/6579/predictions?coincident=true&direction=90_90_0&destination=6627',
+	'92': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/92/stops/6579/predictions?coincident=true&direction=92_92_0&destination=6627',
+    '93': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/93/stops/6579/predictions?coincident=true&direction=93_93_0&destination=6627'
 }
 
-SERIAL_DEVICE = '/dev/ttyAMA0'
-SERIAL_SPEED = 115200
+def not_asleep():
+    now = datetime.datetime.now()
 
-CALIBRATION_FILE = '/home/pi/Devel/stephmeter/calibration.json'
+    sleep_hours = (0, 1, 2, 3, 4, 5, 6, 7)
+    if now.weekday() in (0, 6):
+        sleep_hours = (2, 3, 4, 5, 6, 7, 8)
 
-TIMEOUT = 300 # 5 minutes
+    return not (n.hour in sleep_hours)
 
-NEXTBUS_ROUTES = [42, 43]
+
+NEXTBUS_HOURS = {
+	'90': not_asleep,
+	'92': not_asleep,
+    '93': not_asleep
+}
+
+TIMEOUT = 300 
