@@ -1,4 +1,4 @@
-#!/home/pi/.virtualenvs/stephmeter/bin/python
+#!/usr/bin/python
 
 import nextbus
 import led
@@ -15,18 +15,18 @@ def on():
 	if DEBUG:
 		print 'ON'
 	else:
-        	wiringpi.digitalWrite(6, wiringpi.HIGH)
+        wiringpi.digitalWrite(6, wiringpi.HIGH)
 
 def off():
 	if DEBUG:
 		print 'OFF'
    	else:
-    		wiringpi.digitalWrite(6, wiringpi.LOW)
+    	wiringpi.digitalWrite(6, wiringpi.LOW)
 
 def setup():
 	if not DEBUG:
 		wiringpi.wiringPiSetup()
-	        wiringpi.pinMode(6, wiringpi.OUTPUT)	
+	    wiringpi.pinMode(6, wiringpi.OUTPUT)	
 
 def main():
 	if DEBUG:
@@ -37,19 +37,23 @@ def main():
 	while True:
 		nb.refresh_if_necessary()
 
-		appropriate_route = None
-		for route in NEXTBUS_URLS.keys():
-			if datetime.datetime.now().hour in NEXTBUS_HOURS.get(route, []):
-				appropriate_route = route
+		# check if any active routes are presently monitored
+		active_routes = []
+		for route in NEXTBUS_URLS:
+			if callable(NEXTBUS_HOURS.get(route)):
+				if NEXTBUS_HOURS.get(route)():
+					active_routes.append(route)
+			elif datetime.datetime.now().hour in NEXTBUS_HOURS.get(route, []):
+				active_routes.append(route)
 
-
-		if DEBUG:
+		if DEBUG and len(active_routes) > 0:
 			print 'found actively monitored route: %s' % appropriate_route
 
-		if appropriate_route is None:
+		if len(active_routes) == 0:
+			time.sleep(60)
 			continue
 
-		predictions = (nb.get_nth_closest_arrival(n=0, route=appropriate_route),)
+		predictions = nb.get_nth_closest_arrival(n=0, route=active_routes)
 
 		if DEBUG:
 			print 'predictions: %s' % str(predictions)
@@ -58,13 +62,9 @@ def main():
 		for pred in predictions:
 			if pred is not None:
 				(route, minutes) = pred
-				if route=='G2':
+				if route in ('90', '92', '93'):
 					if (minutes>=5) and (minutes<=8):
 						light_should_be_on = True
-				if route=='64':
-					if (minutes>=5) and (minutes<=8):
-						light_should_be_on = True
-
 
 		if light_should_be_on:
 			on()
@@ -78,13 +78,3 @@ if __name__ == '__main__':
 	setup()
 	off()
 	main()
-
-	#try:
-	#	main()
-	#except Exception, e:
-	#	f = open('/var/log/stephmeter-crash.log', 'a')
-	#	f.write(str(e))
-	#	f.close()
-
-	#	os.system('echo "%s" | mail -s "YELLOWLIGHT CRASH LOG" thomas.j.lee@gmail.com' % str(e))
-
