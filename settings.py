@@ -1,10 +1,7 @@
 import datetime
 
-NEXTBUS_URLS = {
-	'90': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/90/stops/6579/predictions?coincident=true&direction=90_90_0&destination=6627',
-	'92': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/92/stops/6579/predictions?coincident=true&direction=92_92_0&destination=6627',
-    '93': 'http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/93/stops/6579/predictions?coincident=true&direction=93_93_0&destination=6627'
-}
+NEXTBUS_ROUTES = ('90', '92', '93')
+NEXTBUS_URLS = ('http://www.nextbus.com/api/pub/v1/agencies/wmata/routes/90/stops/6579/predictions?coincident=true&direction=90_90_0&destination=6627',)
 
 def not_asleep():
     now = datetime.datetime.now()

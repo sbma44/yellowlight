@@ -6,9 +6,11 @@ import datetime
 import sys
 import os
 from settings import *
-import wiringpi
 
 DEBUG = '--debug' in map(lambda x: x.lower().strip(), sys.argv)
+
+if not DEBUG:
+    import wiringpi
 
 def on():
     if DEBUG:
@@ -27,18 +29,21 @@ def setup():
         wiringpi.wiringPiSetup()
         wiringpi.pinMode(6, wiringpi.OUTPUT)    
 
+def time_to_go(route, minutes):
+    return (minutes >= 5) and (minutes <=8)
+
 def main():
     if DEBUG:
         print 'Entering debug mode...'
 
-    nb = nextbus.Nextbus(NEXTBUS_URLS)
+    nb = nextbus.Nextbus(NEXTBUS_ROUTES, NEXTBUS_URLS)
 
     while True:
         nb.refresh_if_necessary()
 
         # check if any active routes are presently monitored
         active_routes = []
-        for route in NEXTBUS_URLS:
+        for route in NEXTBUS_ROUTES:
             if callable(NEXTBUS_HOURS.get(route)):
                 if NEXTBUS_HOURS.get(route)():
                     active_routes.append(route)
@@ -47,21 +52,16 @@ def main():
 
         if DEBUG and len(active_routes) > 0:
             print 'found actively monitored route(s): %s' % ', '.join(active_routes)
+            print nb.predictions
 
         if len(active_routes) == 0:
             time.sleep(60)
             continue
 
-        prediction = nb.get_nth_closest_arrival(n=0, route=active_routes)
-
-        if DEBUG:
-            print 'predictions: %s' % str(prediction)
-
         light_should_be_on = False
-        (route, minutes) = prediction
-        if route in ('90', '92', '93'):
-            if (minutes>=5) and (minutes<=8):
-                light_should_be_on = True
+        for route in nb.predictions:
+            for minutes in nb.predictions[route]:
+                light_should_be_on = light_should_be_on or time_to_go(route, minutes)
 
         if light_should_be_on:
             on()
