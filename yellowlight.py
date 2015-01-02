@@ -52,18 +52,16 @@ def main():
             time.sleep(60)
             continue
 
-        predictions = nb.get_nth_closest_arrival(n=0, route=active_routes)
+        prediction = nb.get_nth_closest_arrival(n=0, route=active_routes)
 
         if DEBUG:
             print 'predictions: %s' % str(predictions)
 
         light_should_be_on = False
-        for pred in predictions:
-            if pred is not None:
-                (route, minutes) = pred
-                if route in ('90', '92', '93'):
-                    if (minutes>=5) and (minutes<=8):
-                        light_should_be_on = True
+        (route, minutes) = prediction
+        if route in ('90', '92', '93'):
+            if (minutes>=5) and (minutes<=8):
+                light_should_be_on = True
 
         if light_should_be_on:
             on()
